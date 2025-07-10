@@ -1,3 +1,4 @@
+import os
 import requests
 from bs4 import BeautifulSoup
 
@@ -25,29 +26,19 @@ def fetch_announcements():
             })
     return results
 
-if __name__ == "__main__":
-    announcements = fetch_announcements()
-    if announcements:
-        for ann in announcements:
-            print(f"📢 {ann['部署']} | {ann['件名']} | 入札日: {ann['入札日']} | URL: {ann['URL']}")
-    else:
-        print("該当する公告はありません。")
-import requests as req_line
-
-# LINE設定
-LINE_TOKEN = 'epg02OQhEYt7fBYFILNh/aAFiOPF/un2eieXCcdgLWQQjwt2f+jEAtbxCnbJaMOZT8Q9Ivg7m1ECOQE7/5Fm/3Ka1PwLAyPjGKhfRnZzYATyFBh+6yj3tok+yJhj3nzA7dl/LwkZF+dTWl953OXCtgdB04t89/1O/w1cDnyilFU='
-TO_USER_ID = 'Cf28ceaa64690bf45ad9b0b5ece38d8d6'
-
 def send_line_message(message):
+    line_token = os.environ.get('LINE_TOKEN')  # 👈 環境変数から取得
+    to_user_id = os.environ.get('TO_USER_ID')  # 👈 環境変数から取得
+
     headers = {
-        "Authorization": f"Bearer {LINE_TOKEN}",
+        "Authorization": f"Bearer {line_token}",
         "Content-Type": "application/json"
     }
     data = {
-        "to": TO_USER_ID,
+        "to": to_user_id,
         "messages": [{"type": "text", "text": message}]
     }
-    response = req_line.post('https://api.line.me/v2/bot/message/push', headers=headers, json=data)
+    response = requests.post('https://api.line.me/v2/bot/message/push', headers=headers, json=data)
     print("LINE送信結果:", response.status_code, response.text)
 
 if __name__ == "__main__":
@@ -62,3 +53,4 @@ if __name__ == "__main__":
     else:
         print("該当する公告はありません。")
         send_line_message("今日の該当する公告はありません。")
+
