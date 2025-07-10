@@ -1,3 +1,4 @@
+import os  # ← 追加！
 import requests
 from bs4 import BeautifulSoup
 
@@ -26,6 +27,23 @@ def fetch_announcements():
                 })
     return results
 
+def send_line_message(message):
+    LINE_TOKEN = os.getenv("LINE_TOKEN")
+    TO_USER_ID = os.getenv("TO_USER_ID")
+    if not LINE_TOKEN or not TO_USER_ID:
+        print("❌ LINE_TOKENまたはTO_USER_IDが設定されていません。")
+        return
+    headers = {
+        "Authorization": f"Bearer {LINE_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "to": TO_USER_ID,
+        "messages": [{"type": "text", "text": message}]
+    }
+    response = requests.post('https://api.line.me/v2/bot/message/push', headers=headers, json=data)
+    print("LINE送信結果:", response.status_code, response.text)
+
 if __name__ == "__main__":
     announcements = fetch_announcements()
     if announcements:
@@ -34,22 +52,7 @@ if __name__ == "__main__":
             line = f"📢 {ann['部署']} | {ann['件名']} | 入札日: {ann['入札日']} | URL: {ann['URL']}\n"
             print(line)
             msg += line
-        import requests as req_line
-        LINE_TOKEN = os.getenv("LINE_TOKEN")
-        TO_USER_ID = os.getenv("TO_USER_ID")
-        def send_line_message(message):
-            headers = {
-                "Authorization": f"Bearer {LINE_TOKEN}",
-                "Content-Type": "application/json"
-            }
-            data = {
-                "to": TO_USER_ID,
-                "messages": [{"type": "text", "text": message}]
-            }
-            response = req_line.post('https://api.line.me/v2/bot/message/push', headers=headers, json=data)
-            print("LINE送信結果:", response.status_code, response.text)
         send_line_message(msg)
     else:
         print("該当する公告はありません。")
         send_line_message("今日の該当する公告はありません。")
-
