@@ -12,27 +12,34 @@ def fetch_announcements():
     rows = soup.select("table tr")
     results = []
     for tr in rows:
-        cols = [td.get_text(strip=True) for td in tr.find_all("td")]
+        cols = [td.get_text(strip=True).replace('\u3000', '').replace(' ', '') for td in tr.find_all("td")]
         if len(cols) >= 4:
             title = cols[3]
             if any(kw in title for kw in KEYWORDS):
                 link_tag = tr.find("a")
-                url = link_tag['href'] if link_tag else URL
+                url = URL  # デフォルトページURL
+                if link_tag and link_tag.has_attr('href'):
+                    href = link_tag['href']
+                    if href.startswith('http'):
+                        url = href
+                    else:
+                        url = URL.rsplit('/', 1)[0] + '/' + href
                 results.append({
                     "部署": cols[0],
                     "公告日": cols[1],
                     "入札日": cols[2],
-                    "件名": title,
+                    "件名": cols[3],
                     "URL": url
                 })
     return results
 
+# LINE送信用
+import requests as req_line
+
+LINE_TOKEN = 'YOUR_LINE_TOKEN'
+TO_USER_ID = 'YOUR_USER_ID'
+
 def send_line_message(message):
-    LINE_TOKEN = os.getenv("LINE_TOKEN")
-    TO_USER_ID = os.getenv("TO_USER_ID")
-    if not LINE_TOKEN or not TO_USER_ID:
-        print("❌ LINE_TOKENまたはTO_USER_IDが設定されていません。")
-        return
     headers = {
         "Authorization": f"Bearer {LINE_TOKEN}",
         "Content-Type": "application/json"
@@ -41,7 +48,7 @@ def send_line_message(message):
         "to": TO_USER_ID,
         "messages": [{"type": "text", "text": message}]
     }
-    response = requests.post('https://api.line.me/v2/bot/message/push', headers=headers, json=data)
+    response = req_line.post('https://api.line.me/v2/bot/message/push', headers=headers, json=data)
     print("LINE送信結果:", response.status_code, response.text)
 
 if __name__ == "__main__":
@@ -49,7 +56,7 @@ if __name__ == "__main__":
     if announcements:
         msg = ""
         for ann in announcements:
-            line = f"📢 {ann['部署']} | {ann['件名']} | 入札日: {ann['入札日']} | URL: {ann['URL']}\n"
+            line = f"📢 {ann['部署']} | 公告日: {ann['公告日']} | 入札日: {ann['入札日']} | 件名: {ann['件名']} | URL: {ann['URL']}\n"
             print(line)
             msg += line
         send_line_message(msg)
