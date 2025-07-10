@@ -1,4 +1,3 @@
-import os  # ← 追加！
 import requests
 from bs4 import BeautifulSoup
 
