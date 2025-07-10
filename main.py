@@ -2,7 +2,7 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-URL = "https://www.rinya.maff.go.jp/kanto/apply/publicsale/ippan.html"
+URL = "https://www.rinya.maff.go.jp/kanto/apply/publicsale/ippan.html#jump08"
 KEYWORDS = ["有害鳥獣", "捕獲", "防護柵", "点検"]
 
 def fetch_announcements():
