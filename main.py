@@ -12,15 +12,25 @@ def fetch_announcements():
     rows = soup.select("table tr")
     results = []
     for tr in rows:
-        cols = [td.get_text(separator="", strip=True).replace('\u3000', '').replace(' ', '') for td in tr.find_all("td")]
-        if len(cols) >= 4:
-            title = cols[3]
+        tds = tr.find_all("td")
+        if len(tds) >= 4:
+            title_td = tds[3]
+            title = title_td.get_text(separator="", strip=True).replace('\u3000', '').replace(' ', '')
             if any(kw in title for kw in KEYWORDS):
+                link_tag = title_td.find("a") or tr.find("a")
+                url = URL
+                if link_tag and link_tag.has_attr('href'):
+                    href = link_tag['href']
+                    if href.startswith('http'):
+                        url = href
+                    else:
+                        url = URL.rsplit('/', 1)[0] + '/' + href
                 results.append({
-                    "部署": cols[0],
-                    "公告日": cols[1],
-                    "入札日": cols[2],
-                    "件名": title
+                    "部署": tds[0].get_text(strip=True),
+                    "公告日": tds[1].get_text(strip=True),
+                    "入札日": tds[2].get_text(strip=True),
+                    "件名": title,
+                    "URL": url
                 })
     return results
 
