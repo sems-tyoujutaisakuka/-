@@ -5,32 +5,31 @@ from bs4 import BeautifulSoup
 URL = "https://www.rinya.maff.go.jp/kanto/apply/publicsale/ippan.html"
 KEYWORDS = ["有害鳥獣", "捕獲", "防護柵", "点検"]
 
+from bs4 import BeautifulSoup
+import requests
+
+URL = "https://www.rinya.maff.go.jp/kanto/apply/publicsale/ippan.html"
+KEYWORDS = ["有害鳥獣", "捕獲", "防護柵", "点検"]
+
 def fetch_announcements():
     resp = requests.get(URL)
     resp.raise_for_status()
     soup = BeautifulSoup(resp.text, "html.parser")
     rows = soup.select("table tr")
     results = []
+
     for tr in rows:
-        tds = tr.find_all("td")
-        if len(tds) >= 4:
-            title_td = tds[3]
-            title = title_td.get_text(separator="", strip=True).replace('\u3000', '').replace(' ', '')
-            if any(kw in title for kw in KEYWORDS):
-                link_tag = title_td.find("a") or tr.find("a")
-                url = URL
-                if link_tag and link_tag.has_attr('href'):
-                    href = link_tag['href']
-                    if href.startswith('http'):
-                        url = href
-                    else:
-                        url = URL.rsplit('/', 1)[0] + '/' + href
+        cols = tr.find_all("td")
+        if len(cols) >= 4:
+            raw_title_html = cols[3]
+            title_text = raw_title_html.get_text(strip=True).replace('\u3000', '').replace(' ', '')
+
+            if any(kw in title_text for kw in KEYWORDS):
                 results.append({
-                    "部署": tds[0].get_text(strip=True),
-                    "公告日": tds[1].get_text(strip=True),
-                    "入札日": tds[2].get_text(strip=True),
-                    "件名": title,
-                    "URL": url
+                    "部署": cols[0].get_text(strip=True),
+                    "公告日": cols[1].get_text(strip=True),
+                    "入札日": cols[2].get_text(strip=True),
+                    "件名": title_text
                 })
     return results
 
