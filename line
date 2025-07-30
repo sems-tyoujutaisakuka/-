@@ -1,0 +1,25 @@
+import requests
+import os
+
+# LINE Messaging API の情報（GitHub Secretsなどに入れる）
+LINE_TOKEN = os.getenv('cB46ZPwtJ5c2dj0zlBAJgU6KnjooopohcXUOb0PUiP9mPQ8evPWdKVVkKYHkwz5xT8Q9Ivg7m1ECOQE7/5Fm/3Ka1PwLAyPjGKhfRnZzYAR5eavFBxQ819jy1ir62vI7guCHMmn+2zEaKDDIralkhwdB04t89/1O/w1cDnyilFU=')
+TO_GROUP_ID = os.getenv('Ucb45afffce2075e3b680490897dd2d87')  # グループID（Cf28ceaa64690bf45ad9b0b5ece38d8d6）
+
+def send_line_message(text):
+    url = "https://api.line.me/v2/bot/message/push"
+    headers = {
+        "Authorization": f"Bearer {LINE_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    body = {
+        "to": TO_GROUP_ID,
+        "messages": [{"type": "text", "text": text}]
+    }
+
+    response = requests.post(url, headers=headers, json=body)
+    print("送信ステータス:", response.status_code)
+    print(response.text)
+
+# 例
+if __name__ == "__main__":
+    send_line_message("✅ テスト通知：これはLINEグループへの通知テストです。")
