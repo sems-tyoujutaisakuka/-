@@ -11,6 +11,10 @@ import requests
 URL = "https://www.rinya.maff.go.jp/kanto/apply/publicsale/ippan.html"
 KEYWORDS = ["有害鳥獣", "捕獲", "防護柵", "点検"]
 
+# サイトのHTMLを保存してあとで中身を見る
+with open("downloaded.html", "w", encoding="utf-8") as f:
+    f.write(resp.text)
+
 def fetch_announcements():
     resp = requests.get(URL)
     resp.raise_for_status()
