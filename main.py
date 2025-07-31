@@ -24,7 +24,7 @@ def fetch_announcements():
     # 保存して中身確認用（オプション）
     with open("downloaded.html", "w", encoding="utf-8") as f:
         f.write(res.text)
-　　print(res.text[:1000])  # HTMLの最初の1000文字だけ出力（長すぎると途中で省略されます）
+        print(res.text[:1000])  # HTMLの最初の1000文字だけ出力（長すぎると途中で省略されます）
     soup = BeautifulSoup(res.text, "html.parser")
     announcements = []
 
