@@ -7,7 +7,7 @@ import re
 # ==========================
 
 URL = "https://www.rinya.maff.go.jp/kanto/apply/publicsale/ippan.html"
-KEYWORDS = ["有害鳥獣", "捕獲", "防護柵", "点検"]
+KEYWORDS = ["水沼・桐生地区獣害防護柵点検業務委託（R6明許）"]
 
 LINE_TOKEN = "cB46ZPwtJ5c2dj0zlBAJgU6KnjooopohcXUOb0PUiP9mPQ8evPWdKVVkKYHkwz5xT8Q9Ivg7m1ECOQE7/5Fm/3Ka1PwLAyPjGKhfRnZzYAR5eavFBxQ819jy1ir62vI7guCHMmn+2zEaKDDIralkhwdB04t89/1O/w1cDnyilFU="  # 🔁 ご自身のトークンに変更
 TO_USER_ID = "Cf28ceaa64690bf45ad9b0b5ece38d8d6"  # 🔁 通知先のIDに変更
