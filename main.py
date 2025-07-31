@@ -27,9 +27,8 @@ def fetch_announcements():
 # LINE送信用
 import requests as req_line
 
-LINE_TOKEN = "＜cB46ZPwtJ5c2dj0zlBAJgU6KnjooopohcXUOb0PUiP9mPQ8evPWdKVVkKYHkwz5xT8Q9Ivg7m1ECOQE7/5Fm/3Ka1PwLAyPjGKhfRnZzYAR5eavFBxQ819jy1ir62vI7guCHMmn+2zEaKDDIralkhwdB04t89/1O/w1cDnyilFU=
-＞"
-TO_USER_ID = "＜Cf28ceaa64690bf45ad9b0b5ece38d8d6＞"
+LINE_TOKEN = "cB46ZPwtJ5c2dj0zlBAJgU6KnjooopohcXUOb0PUiP9mPQ8evPWdKVVkKYHkwz5xT8Q9Ivg7m1ECOQE7/5Fm/3Ka1PwLAyPjGKhfRnZzYAR5eavFBxQ819jy1ir62vI7guCHMmn+2zEaKDDIralkhwdB04t89/1O/w1cDnyilFU="
+TO_USER_ID = "Cf28ceaa64690bf45ad9b0b5ece38d8d6"
 
 def send_line_message(message):
     headers = {
