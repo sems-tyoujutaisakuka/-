@@ -21,15 +21,15 @@ def fetch_announcements():
     res = requests.get(URL)
     res.raise_for_status()
 
-# 保存して中身確認用（オプション）
-with open("downloaded.html", "w", encoding="utf-8") as f:
-    f.write(res.text)
+    with open("downloaded.html", "w", encoding="utf-8") as f:
+        f.write(res.text)
 
-# HTMLの最初の1000文字をログに出力（構造確認用）
-print(res.text[:1000])
+    print(res.text[:1000])  # ←これは外に出す！
 
-soup = BeautifulSoup(res.text, "html.parser")
-announcements = []
+    soup = BeautifulSoup(res.text, "html.parser")
+    announcements = []
+
+    tables = soup.find_all("table")  # ←先頭から4スペース（またはタブ1つ）
 
     tables = soup.find_all("table")
     for table in tables:
