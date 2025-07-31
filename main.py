@@ -19,6 +19,12 @@ def normalize(text):
 def fetch_announcements():
     res = requests.get(URL)
     res.raise_for_status()
+    
+    # HTMLを保存して中身を確認するためのコード
+with open("downloaded.html", "w", encoding="utf-8") as f:
+    f.write(res.text)
+print("HTMLをdownloaded.htmlとして保存しました。")
+
     soup = BeautifulSoup(res.text, "html.parser")
 
     announcements = []
