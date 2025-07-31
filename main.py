@@ -1,23 +1,23 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import unicodedata
 
 # ==========================
 # 設定
 # ==========================
 URL = "https://www.rinya.maff.go.jp/kanto/apply/publicsale/ippan.html"
-KEYWORDS = ["有害鳥獣", "捕獲", "防護柵", "点検", "獣害", "水沼・桐生地区獣害防護柵点検業務委託（R6明許）"]
+KEYWORDS = ["水沼・桐生地区獣害防護柵点検業務委託（R6明許）", "獣害", "有害鳥獣", "防護柵", "点検", "捕獲"]
 
-# LINE Messaging API トークンと送信先
-LINE_TOKEN = "cB46ZPwtJ5c2dj0zlBAJgU6KnjooopohcXUOb0PUiP9mPQ8evPWdKVVkKYHkwz5xT8Q9Ivg7m1ECOQE7/5Fm/3Ka1PwLAyPjGKhfRnZzYAR5eavFBxQ819jy1ir62vI7guCHMmn+2zEaKDDIralkhwdB04t89/1O/w1cDnyilFU="         # ←自分のMessaging APIチャネルアクセストークンを入力
-TO_USER_ID = "Cf28ceaa64690bf45ad9b0b5ece38d8d6"        # ←送信先のuserIdやgroupIdを入力
+LINE_TOKEN = "cB46ZPwtJ5c2dj0zlBAJgU6KnjooopohcXUOb0PUiP9mPQ8evPWdKVVkKYHkwz5xT8Q9Ivg7m1ECOQE7/5Fm/3Ka1PwLAyPjGKhfRnZzYAR5eavFBxQ819jy1ir62vI7guCHMmn+2zEaKDDIralkhwdB04t89/1O/w1cDnyilFU="
+TO_USER_ID = "Cf28ceaa64690bf45ad9b0b5ece38d8d6"
 
 # ==========================
-# 正規化関数（テキストの比較用）
+# テキスト正規化関数
 # ==========================
 def normalize(text):
-    # 全角スペース・改行・タブなど除去 + strip()
-    text = re.sub(r"[\u3000\s]", "", text)
+    text = unicodedata.normalize('NFKC', text)  # Unicode正規化（全角→半角など）
+    text = re.sub(r"[\s\u3000]", "", text)      # 空白・全角スペースを削除
     return text.strip()
 
 # ==========================
@@ -33,17 +33,16 @@ def fetch_announcements():
     for tr in rows:
         cols = tr.find_all("td")
         if len(cols) >= 4:
-            # 件名列（aタグが中にある場合を考慮）
+            # 件名（aタグがあればそれを優先）
             a_tag = cols[3].find("a")
             title_raw = a_tag.get_text(strip=True) if a_tag else cols[3].get_text(strip=True)
-            title = normalize(title_raw)
-            # キーワードがタイトルに含まれていれば保存
-            if any(kw in title for kw in KEYWORDS):
-                results.append(title_raw)  # 通知では元の件名を使う
+            title_normalized = normalize(title_raw)
+            if any(normalize(kw) in title_normalized for kw in KEYWORDS):
+                results.append(title_raw)
     return results
 
 # ==========================
-# LINE メッセージ送信関数
+# LINE送信関数
 # ==========================
 def send_line_message(message):
     headers = {
@@ -58,7 +57,7 @@ def send_line_message(message):
     print("LINE送信結果:", response.status_code, response.text)
 
 # ==========================
-# メイン処理
+# メイン関数
 # ==========================
 def main():
     announcements = fetch_announcements()
