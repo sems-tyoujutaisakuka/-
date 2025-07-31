@@ -32,11 +32,11 @@ TO_USER_ID = "Cf28ceaa64690bf45ad9b0b5ece38d8d6"
 
 def send_line_message(message):
     headers = {
-        "Authorization": f"Bearer {cB46ZPwtJ5c2dj0zlBAJgU6KnjooopohcXUOb0PUiP9mPQ8evPWdKVVkKYHkwz5xT8Q9Ivg7m1ECOQE7/5Fm/3Ka1PwLAyPjGKhfRnZzYAR5eavFBxQ819jy1ir62vI7guCHMmn+2zEaKDDIralkhwdB04t89/1O/w1cDnyilFU=}",
+        "Authorization": f"Bearer {LINE_TOKEN}",
         "Content-Type": "application/json"
     }
     data = {
-        "to": Cf28ceaa64690bf45ad9b0b5ece38d8d6,
+        "to": TO_USER_ID,
         "messages": [{"type": "text", "text": message}]
     }
     response = req_line.post("https://api.line.me/v2/bot/message/push", headers=headers, json=data)
