@@ -7,16 +7,15 @@ import unicodedata
 URL = "https://www.rinya.maff.go.jp/kanto/apply/publicsale/ippan.html"
 KEYWORDS = ["有害鳥獣", "獣害", "防護柵", "捕獲", "点検", "水沼", "桐生", "甲府", "引佐"]
 
-LINE_TOKEN = "cB46ZPwtJ5c2dj0zlBAJgU6KnjooopohcXUOb0PUiP9mPQ8evPWdKVVkKYHkwz5xT8Q9Ivg7m1ECOQE7/5Fm/3Ka1PwLAyPjGKhfRnZzYAR5eavFBxQ819jy1ir62vI7guCHMmn+2zEaKDDIralkhwdB04t89/1O/w1cDnyilFU="     # Messaging APIのアクセストークン
-TO_USER_ID = "Cf28ceaa64690bf45ad9b0b5ece38d8d6"    # グループまたはユーザーID
+LINE_TOKEN = "cB46ZPwtJ5c2dj0zlBAJgU6KnjooopohcXUOb0PUiP9mPQ8evPWdKVVkKYHkwz5xT8Q9Ivg7m1ECOQE7/5Fm/3Ka1PwLAyPjGKhfRnZzYAR5eavFBxQ819jy1ir62vI7guCHMmn+2zEaKDDIralkhwdB04t89/1O/w1cDnyilFU="
+TO_USER_ID = "Cf28ceaa64690bf45ad9b0b5ece38d8d6"  # グループまたはユーザーID
 
-# ========== 正規化 ========== #
+# ========== 正規化関数 ========== #
 def normalize(text):
-    text = unicodedata.normalize('NFKC', text)  # 全角→半角など統一
-    text = re.sub(r"\s+", "", text)             # 改行・空白削除
-    return text
+    text = unicodedata.normalize('NFKC', text)
+    return re.sub(r"\s+", "", text)
 
-# ========== 公告取得 ========== #
+# ========== 公告抽出処理 ========== #
 def fetch_announcements():
     res = requests.get(URL)
     res.raise_for_status()
@@ -24,21 +23,22 @@ def fetch_announcements():
 
     announcements = []
 
-    for row in soup.select("table tr"):
-        cols = row.find_all("td")
-        if len(cols) >= 4:
-            # 件名にaタグがある場合も対応
-            title_tag = cols[3].find("a")
-            title = title_tag.get_text(strip=True) if title_tag else cols[3].get_text(strip=True)
-            norm_title = normalize(title)
+    tables = soup.find_all("table")
+    for table in tables:
+        for row in table.find_all("tr"):
+            cols = row.find_all("td")
+            if len(cols) >= 4:
+                title_tag = cols[3].find("a")
+                title = title_tag.get_text(strip=True) if title_tag else cols[3].get_text(strip=True)
+                norm_title = normalize(title)
 
-            if any(normalize(kw) in norm_title for kw in KEYWORDS):
-                announcements.append({
-                    "部署": cols[0].get_text(strip=True),
-                    "公告日": cols[1].get_text(strip=True),
-                    "入札日": cols[2].get_text(strip=True),
-                    "件名": title
-                })
+                if any(normalize(kw) in norm_title for kw in KEYWORDS):
+                    announcements.append({
+                        "部署": cols[0].get_text(strip=True),
+                        "公告日": cols[1].get_text(strip=True),
+                        "入札日": cols[2].get_text(strip=True),
+                        "件名": title
+                    })
 
     return announcements
 
@@ -55,7 +55,7 @@ def send_line_message(msg):
     res = requests.post("https://api.line.me/v2/bot/message/push", headers=headers, json=payload)
     print("LINE送信:", res.status_code, res.text)
 
-# ========== メイン処理 ========== #
+# ========== 実行メイン ========== #
 def main():
     anns = fetch_announcements()
     if anns:
